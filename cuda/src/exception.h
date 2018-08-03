@@ -27,7 +27,7 @@ namespace cudnn {
         static char _buffer[1024 * 4];
 
         size_t _line;
-        const char const * _file;
+        const char * _file;
         cudnnStatus_t _status;
 
     public:
@@ -57,7 +57,7 @@ namespace cuda {
         static char _buffer[1024 * 4];
 
         size_t _line;
-        const char const * _file;
+        const char * _file;
         cudaError_t _status;
 
     public:

@@ -3,6 +3,9 @@
 #include "cudnn.h"
 #include "exception.h"
 
+char cudnn::Exception::_buffer[4096] = { 0 };
+char cuda::Exception::_buffer[4096] = { 0 };
+
 cudnn::Exception&
 cudnn::Exception::operator=(const cudnn::Exception &other)
 {
@@ -19,8 +22,7 @@ cudnn::Exception::operator=(cudnn::Exception &&other) noexcept
 }
 
 const char* cudnn::Exception::what() const noexcept {
-    memset(this->_buffer, 0, sizeof(this->_buffer));
-    sprintf(this->_buffer, "Error in %s line %d: %s",
+    sprintf(this->_buffer, "Error in %s line %lu: %s",
             this->_file, this->_line, cudnnGetErrorString(this->_status));
     return this->_buffer;
 }
@@ -42,8 +44,7 @@ cuda::Exception::operator=(cuda::Exception &&other) noexcept
 }
 
 const char* cuda::Exception::what() const noexcept {
-    std::memset(this->_buffer, 0, sizeof(this->_buffer));
-    sprintf(this->_buffer, "Error in %s line %d: %s",
+    sprintf(this->_buffer, "Error in %s line %lu: %s",
             this->_file, this->_line, cudaGetErrorString(this->_status));
     return this->_buffer;
 }

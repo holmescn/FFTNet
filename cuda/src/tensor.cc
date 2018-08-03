@@ -100,7 +100,13 @@ cudnn::Tensor4d::operator=(const cudnn::Tensor4d& other)
 
 cudnn::Tensor4d::Tensor4d&
 cudnn::Tensor4d::operator=(cudnn::Tensor4d&& other)
- {
-     // TODO
-     return *this;
- }
+{
+    if (other._data != nullptr) {
+        this->_data = other._data;
+        this->_size = other._size;
+        other._data = nullptr;
+        other._size = 0;
+    }
+
+    return *this;
+}
