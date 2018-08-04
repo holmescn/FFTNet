@@ -3,36 +3,47 @@
 #define __CUDNN_TENSOR_H__
 
 #include "cudnn.h"
+#include "data_type.h"
+#include "tensor_format.h"
 
 namespace cudnn {
-    enum class TensorFormat {
-        ChannelsFirst = CUDNN_TENSOR_NCHW,
-        ChannelsLast = CUDNN_TENSOR_NHWC
-    };
-
-    enum class DataType {
-        Float = CUDNN_DATA_FLOAT,
-        Double = CUDNN_DATA_DOUBLE,
-        Half = CUDNN_DATA_HALF
-    };
-
     class Tensor4d {
         cudnnTensorDescriptor_t _descriptor;
-        TensorFormat _format;
-        DataType _dataType;
+        bool _initialized;
 
-        void *_data;
-        size_t _size;
+        size_t batch_stride, channels_stride, height_stride, width_stride;
     public:
-        Tensor4d(TensorFormat format, DataType dataType,
-                int batch_size, int n_channels, int height, int width);
+        TensorFormat format;
+        DataType dataType;
+        int batch_size, n_channels, height, width;
 
+    public:
+        Tensor4d();
         ~Tensor4d();
+        Tensor4d(const Tensor4d& other) = delete;
+        Tensor4d(Tensor4d&& other) = delete;
+        Tensor4d& operator=(const Tensor4d& other) = delete;
+        Tensor4d& operator=(Tensor4d&& other) = delete;
 
-        Tensor4d(const Tensor4d& other);
-        Tensor4d(Tensor4d&& other);
-        Tensor4d& operator=(const Tensor4d& other);
-        Tensor4d& operator=(Tensor4d&& other);
+        explicit operator cudnnTensorDescriptor_t() const noexcept { return _descriptor; }
+
+        void initialize();
+
+        template<typename T>
+        T at(void* data, int batch, int channel, int height, int width) const noexcept {
+            uint8_t *p = static_cast<uint8_t*>(data);
+            T *r = static_cast<T*>(p + width * width_stride + height * height_stride + channel * channels_stride + batch * batch_stride);
+            return *r;
+        }
+
+        template<typename T>
+        T& at(void* data, int batch, int channel, int height, int width) noexcept {
+            uint8_t *p = static_cast<uint8_t*>(data);
+            T *r = static_cast<T*>(p + width * width_stride + height * height_stride + channel * channels_stride + batch * batch_stride);
+            return *r;
+        }
+
+        size_t size() const noexcept { return size_of_data_type(dataType) * batch_size * n_channels * height * width; }
     };
 }
 

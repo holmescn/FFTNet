@@ -1,8 +1,6 @@
-#include "exception.h"
-
-#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch.hpp"
 
+#include "exception.h"
 
 TEST_CASE( "Assert cuDNN Success", "[assert_cudnn_success]" ) {
     SECTION("should success") {
