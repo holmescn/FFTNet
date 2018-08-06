@@ -37,6 +37,10 @@ convolution_test: build/cudnn_context.o build/tensor.o build/kernel.o build/arra
 	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@
 
+conv1d_test: build/cudnn_context.o build/tensor.o build/kernel.o build/array4d.o build/data_type.o build/exception.o build/convolution.o build/conv1d.o build/catch.o build/conv1d_test.o
+	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
+	./build/$@
+
 cuda_test: build/catch.o build/cuda_test.o
 	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@

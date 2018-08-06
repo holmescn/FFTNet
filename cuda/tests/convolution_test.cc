@@ -94,23 +94,3 @@ TEST_CASE( "Convolution forward", "[cudnn::Convolution]" ) {
         }
     }
 }
-
-TEST_CASE( "Conv1d", "[cudnn::Convolution]" ) {
-    cudnn::Context context;
-
-    cudnn::Kernel kernel(1, 1, 3, 3);
-    auto kernel_data = kernel.CreateArray4f32();
-    kernel_data = 1.0;
-
-    cudnn::Tensor4d input_tensor(1, 1, 8, 8);
-    auto input_data = input_tensor.CreateArray4f32();
-    input_data = 1.0;
-
-    cudnn::Tensor4d output_tensor(1, 1, 8, 8);
-    auto output_data = output_tensor.CreateArray4f32();
-    output_data.InitializeWithZeros();
-
-    cudnn::Convolution convolution(context, kernel, 1, 1);
-    convolution.Forward(input_tensor, input_data, output_tensor, output_data, kernel_data);
-
-}

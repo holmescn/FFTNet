@@ -20,6 +20,7 @@ namespace cudnn {
         const size_t height;
         const size_t width;
 
+        void _InitDescriptor();
     public:
         Kernel(int in_channels, int out_channels, int height, int width,
                 TensorFormat format = TensorFormat::ChannelsFirst,
@@ -28,7 +29,7 @@ namespace cudnn {
 
         Kernel(const Kernel& other) = delete;
         Kernel(Kernel&& other) = delete;
-        Kernel& operator=(const Kernel& other) = delete;
+        Kernel& operator=(const Kernel& other)  = delete;
         Kernel& operator=(Kernel&& other) = delete;
 
         Array4f32 CreateArray4f32() const;
