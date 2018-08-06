@@ -12,7 +12,8 @@ namespace cudnn {
         Float64 = CUDNN_DATA_DOUBLE,
         Int8 = CUDNN_DATA_INT8,
         UInt8 = CUDNN_DATA_UINT8,
-        Int32 = CUDNN_DATA_INT32
+        Int32 = CUDNN_DATA_INT32,
+        Invalid
     };
 
     size_t size_of_data_type(DataType dataType);

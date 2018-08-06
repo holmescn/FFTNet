@@ -5,45 +5,29 @@
 #include "cudnn.h"
 #include "data_type.h"
 #include "tensor_format.h"
+#include "array4d.h"
 
 namespace cudnn {
     class Tensor4d {
         cudnnTensorDescriptor_t _descriptor;
-        bool _initialized;
-
-        size_t batch_stride, channels_stride, height_stride, width_stride;
     public:
-        TensorFormat format;
-        DataType dataType;
-        int batch_size, n_channels, height, width;
+        const TensorFormat format;
+        const DataType data_type;
+        const int batch_size, n_channels, height, width;
 
     public:
-        Tensor4d();
+        Tensor4d(size_t batch_size, size_t n_channels, size_t height, size_t width,
+                TensorFormat format = TensorFormat::ChannelsFirst,
+                DataType data_type = DataType::Float32);
         ~Tensor4d();
         Tensor4d(const Tensor4d& other) = delete;
         Tensor4d(Tensor4d&& other) = delete;
         Tensor4d& operator=(const Tensor4d& other) = delete;
         Tensor4d& operator=(Tensor4d&& other) = delete;
 
+        Array4f32 CreateArray4f32() const;
+
         explicit operator cudnnTensorDescriptor_t() const noexcept { return _descriptor; }
-
-        void initialize();
-
-        template<typename T>
-        T at(void* data, int batch, int channel, int height, int width) const noexcept {
-            uint8_t *p = static_cast<uint8_t*>(data);
-            T *r = static_cast<T*>(p + width * width_stride + height * height_stride + channel * channels_stride + batch * batch_stride);
-            return *r;
-        }
-
-        template<typename T>
-        T& at(void* data, int batch, int channel, int height, int width) noexcept {
-            uint8_t *p = static_cast<uint8_t*>(data);
-            T *r = static_cast<T*>(p + width * width_stride + height * height_stride + channel * channels_stride + batch * batch_stride);
-            return *r;
-        }
-
-        size_t size() const noexcept { return size_of_data_type(dataType) * batch_size * n_channels * height * width; }
     };
 }
 

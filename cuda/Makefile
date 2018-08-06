@@ -7,30 +7,38 @@ CXXFLAGS := -std=c++14 -O2 -ccbin clang-3.9 -lstdc++
 
 all: ${TARGET}
 
-test: cudnn_context_test exception_test tensor_test
+test: cudnn_context_test exception_test tensor_test array4d_test
 
 fftnet_cuda: build/fftnet_main.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) $(LIBS) -o build/${TARGET} $^
 
 
 cudnn_context_test: build/cudnn_context.o build/exception.o build/data_type.o build/catch.o build/cudnn_context_test.o
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) $(LIBS) -o build/$@ $^
+	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@
 
 exception_test: build/exception.o build/catch.o build/exception_test.o
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) $(LIBS) -o build/$@ $^
+	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@
 
-tensor_test: build/tensor.o build/data_type.o build/exception.o build/catch.o build/tensor_test.o
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) $(LIBS) -o build/$@ $^
+tensor_test: build/tensor.o build/array4d.o build/data_type.o build/exception.o build/catch.o build/tensor_test.o
+	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@
 
-kernel_test: build/kernel.o build/data_type.o build/exception.o build/catch.o build/kernel_test.o
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) $(LIBS) -o build/$@ $^
+kernel_test: build/kernel.o build/array4d.o build/data_type.o build/exception.o build/catch.o build/kernel_test.o
+	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@
 
-convolution_test: build/tensor.o build/data_type.o build/exception.o build/convolution.o build/catch.o build/convolution_test.o
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) $(LIBS) -o build/$@ $(addprefix build/,$^)
+array4d_test: build/tensor.o build/kernel.o build/array4d.o build/exception.o build/catch.o build/array4d_test.o
+	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
+	./build/$@
+
+convolution_test: build/cudnn_context.o build/tensor.o build/kernel.o build/array4d.o build/data_type.o build/exception.o build/convolution.o build/catch.o build/convolution_test.o
+	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
+	./build/$@
+
+cuda_test: build/catch.o build/cuda_test.o
+	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@
 
 build/%.o: tests/%.cc
