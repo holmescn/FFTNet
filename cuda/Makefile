@@ -33,7 +33,7 @@ array4d_test: build/tensor.o build/kernel.o build/array4d.o build/exception.o bu
 	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@
 
-convolution_test: build/cudnn_context.o build/tensor.o build/kernel.o build/array4d.o build/data_type.o build/exception.o build/convolution.o build/catch.o build/convolution_test.o
+conv1d_test: build/cudnn_context.o build/tensor.o build/kernel.o build/array4d.o build/data_type.o build/exception.o build/conv1d.o build/catch.o build/conv1d_test.o
 	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@
 
