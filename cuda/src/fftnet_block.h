@@ -3,37 +3,33 @@
 #define __FFTNET_BLOCK_H__
 
 #include "cudnn_context.h"
-#include "convolution.h"
+#include "conv1d.h"
+#include "relu.h"
 
 class FFTNetBlock {
-    cudnnActivationDescriptor_t _activation_descriptor;
-
     const cudnn::Context &_context;
-    cudnn::Kernel _x_kernel;
-    cudnn::Convolution _x_conv;
-    cudnn::Array4f32 _x_l_weight;
-    cudnn::Array4f32 _x_l_bias;
-    cudnn::Array4f32 _x_r_weight;
-    cudnn::Array4f32 _x_r_bias;
-    cudnn::Kernel _out_kernel;
-    cudnn::Convolution _out_conv;
-    cudnn::Array4f32 _out_weight;
-    cudnn::Array4f32 _out_bias;
-    cudnn::Kernel *_h_kernel;
-    cudnn::Convolution *_h_conv;
-    cudnn::Array4f32 *_h_l_weight;
-    cudnn::Array4f32 *_h_l_bias;
-    cudnn::Array4f32 *_h_r_weight;
-    cudnn::Array4f32 *_h_r_bias;
+    cudnn::ReLU _relu;
+
     int _local_condition_channels;
     int _shift;
 
-    void _SplitByShift(const cudnn::Tensor4d &tensor, const cudnn::Array4f32 &input_data,
-                        cudnn::Array4f32 &out_l, cudnn::Array4f32 &out_r) const;
+    void _SplitXByShift(const cudnn::Tensor4d &tensor, const cudnn::Array4f32 &input_data,
+                        cudnn::Array4f32 &out_l_data, cudnn::Array4f32 &out_r_data) const;
+    void _SplitHByShift(const cudnn::Tensor4d &tensor, const cudnn::Array4f32 &input_data,
+                        int width,
+                        cudnn::Array4f32 &out_l_data,
+                        cudnn::Array4f32 &out_r_data);
+
     void _AddTensor(const cudnn::Tensor4d &tensor,
                     const cudnn::Array4f32 &data,
                     cudnn::Array4f32 &output);
-    void _ReLU(const cudnn::Tensor4d &tensor, const cudnn::Array4f32 &data, cudnn::Array4f32 &output);
+public:
+    layers::Conv1D x_l_conv1d;
+    layers::Conv1D x_r_conv1d;
+    layers::Conv1D *h_l_conv1d;
+    layers::Conv1D *h_r_conv1d;
+    layers::Conv1D out_conv1d;
+
 public:
     FFTNetBlock(const cudnn::Context &context,
                 int in_channels, 
@@ -47,7 +43,7 @@ public:
     FFTNetBlock& operator=(const FFTNetBlock& other)  = delete;
     FFTNetBlock& operator=(FFTNetBlock&& other) = delete;
 
-    cudnn::Tensor4d GetOutputTensor(const cudnn::Tensor4d &tensor);
+    cudnn::Tensor4d CreateOutputTensor(const cudnn::Tensor4d &input_tensor);
     void Forward(const cudnn::Tensor4d &x_tensor, const cudnn::Array4f32 &x_data,
                     const cudnn::Tensor4d &out_tensor, cudnn::Array4f32 &out_data);
     void Forward(const cudnn::Tensor4d &x_tensor, const cudnn::Array4f32 &x_data,

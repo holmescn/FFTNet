@@ -18,6 +18,7 @@ TEST_CASE( "Convolution forward", "[cudnn::Convolution]" ) {
     output_data = 0.0;
 
     conv1d.Forward(input_tensor, input_data, output_tensor, output_data);
+    cudaDeviceSynchronize();
 
     for(int b = 0; b < output_data.dim(0); ++b) {
         for (int ch = 0; ch < output_data.dim(1); ++ch) {

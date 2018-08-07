@@ -60,3 +60,19 @@ cudnn::Array4f32& cudnn::Array4f32::operator=(float value) noexcept
 
     return *this;
 }
+
+void cudnn::Array4f32::Print() const noexcept
+{
+    for (size_t idx0 = 0; idx0 < _dims[0]; ++idx0) {
+        for (size_t idx1 = 0; idx1 < _dims[1]; ++idx1) {
+            std::cout << "[" << idx0 << ", " << idx1 << "]" << std::endl;
+            for (size_t idx2 = 0; idx2 < _dims[2]; ++idx2) {
+                for (size_t idx3 = 0; idx3 < _dims[3]; ++idx3) {
+                    std::cout << _data[this->_index(idx0, idx1, idx2, idx3)];
+                    std::cout << (idx3 + 1 < _dims[3] ? ", " : "");
+                }
+                std::cout << std::endl;
+            }
+        }
+    }
+}

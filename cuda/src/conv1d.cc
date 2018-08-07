@@ -11,7 +11,7 @@ layers::Conv1D::Conv1D(
     bool use_bias)
 : _context(context),
   _kernel(in_channels, out_channels, 1, kernel_size),
-  _bias(1, 1, 1, out_channels),
+  _bias(1, out_channels, 1, 1),
   _stride(stride),
   _padding(padding),
   _use_bias(use_bias),
@@ -78,8 +78,6 @@ void layers::Conv1D::Forward(
             static_cast<cudnnTensorDescriptor_t>(output_tensor),
             output_data.data()) );
     }
-
-    assert_cuda_success( cudaDeviceSynchronize() );
 }
 
 void layers::Conv1D::_PrepareWorkspace(

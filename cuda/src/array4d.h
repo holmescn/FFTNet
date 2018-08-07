@@ -30,6 +30,8 @@ namespace cudnn {
         Array4f32& operator=(float value) noexcept;
 
         void InitializeWithZeros();
+
+        void Print() const noexcept;
     };
 }
 #endif // __CUDNN_NDARRAY_H__
