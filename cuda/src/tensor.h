@@ -21,7 +21,7 @@ namespace cudnn {
                 DataType data_type = DataType::Float32);
         ~Tensor4d();
         Tensor4d(const Tensor4d& other) = delete;
-        Tensor4d(Tensor4d&& other) = delete;
+        Tensor4d(Tensor4d&& other);
         Tensor4d& operator=(const Tensor4d& other) = delete;
         Tensor4d& operator=(Tensor4d&& other) = delete;
 

@@ -24,6 +24,7 @@ namespace cudnn {
         void *_workspace;
         const Context &_context;
         const Kernel &_kernel;
+        const Tensor4d _bias;
         void _SetConvolutionProperties(int pad_height,
                                         int pad_width,
                                         int height_stride,
@@ -51,6 +52,10 @@ namespace cudnn {
         void Forward(const Tensor4d &input_tensor, const Array4f32 &input_data,
                      const Tensor4d &output_tensor, const Array4f32 &output_data,
                      const Array4f32 &kernel_data);
+
+        Array4f32 CreateBiasArray4f32() const;
+        void BiasAdd(const Array4f32 &bias_data,
+                     const Tensor4d &output_tensor, Array4f32 &output_data) const;
         explicit operator cudnnConvolutionDescriptor_t() const noexcept { return _convolution_descriptor; }
     };
 }

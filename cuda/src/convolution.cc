@@ -7,7 +7,8 @@ cudnn::Convolution::Convolution(const Context &context, const Kernel &kernel,
                     int pad_height, int pad_width,
                     int height_stride, int width_stride,
                     int dilation_height, int dilation_width)
-: _workspace(nullptr), _workspace_size(0), _context(context), _kernel(kernel)
+: _workspace(nullptr), _workspace_size(0), _context(context), _kernel(kernel),
+  _bias(1, kernel.out_channels, 1, 1, kernel.format, kernel.data_type)
 {
     assert_cudnn_success( cudnnCreateConvolutionDescriptor(&_convolution_descriptor) );
     assert_cudnn_success( cudnnSetConvolution2dDescriptor(_convolution_descriptor,
@@ -135,4 +136,25 @@ void cudnn::Convolution::_PrepareWorkspace(const cudnn::Tensor4d &input_tensor,
 
     _workspace_size = workspace_size;
     assert_cuda_success( cudaMalloc(&_workspace, _workspace_size) );
+}
+
+cudnn::Array4f32 cudnn::Convolution::CreateBiasArray4f32() const
+{
+    return _bias.CreateArray4f32();
+}
+
+void cudnn::Convolution::BiasAdd(
+    const Array4f32 &bias_data,
+    const Tensor4d &output_tensor, Array4f32 &output_data) const
+{
+    const float alpha = 1.0, beta = 1.0;
+    assert_cudnn_success( cudnnAddTensor(
+        static_cast<cudnnHandle_t>(_context),
+        &alpha,
+        static_cast<cudnnTensorDescriptor_t>(_bias),
+        bias_data.data(),
+        &beta,
+        static_cast<cudnnTensorDescriptor_t>(output_tensor),
+        output_data.data()) );
+    cudaDeviceSynchronize();
 }

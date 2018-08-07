@@ -17,6 +17,18 @@ cudnn::Tensor4d::Tensor4d(size_t batch_size, size_t n_channels, size_t height, s
     ) );
 }
 
+cudnn::Tensor4d::Tensor4d(cudnn::Tensor4d &&other)
+: batch_size(other.batch_size), n_channels(other.n_channels), height(other.height), width(other.width),
+  format(other.format), data_type(other.data_type)
+{
+    assert_cudnn_success( cudnnCreateTensorDescriptor(&_descriptor) );
+    assert_cudnn_success( cudnnSetTensor4dDescriptor(_descriptor,
+        static_cast<cudnnTensorFormat_t>(format),
+        static_cast<cudnnDataType_t>(data_type),
+        batch_size, n_channels, height, width
+    ) );
+}
+
 cudnn::Tensor4d::~Tensor4d()
 {
     assert_cudnn_success( cudnnDestroyTensorDescriptor(_descriptor) );
