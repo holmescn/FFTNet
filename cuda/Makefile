@@ -41,6 +41,10 @@ fftnet_block_test: build/cudnn_context.o build/tensor.o build/kernel.o build/arr
 	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@
 
+fftnet_test: build/cudnn_context.o build/tensor.o build/kernel.o build/array4d.o build/data_type.o build/exception.o build/conv1d.o build/relu.o build/fftnet_block.o build/fftnet.o build/catch.o build/fftnet_test.o
+	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
+	./build/$@
+
 cuda_test: build/catch.o build/cuda_test.o
 	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@
