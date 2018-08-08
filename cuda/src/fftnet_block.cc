@@ -65,6 +65,7 @@ void FFTNetBlock::Forward(
 
     // x_r = F.relu(x_l + x_r)
     _AddTensor(x_conv_out_tensor, x_l_conv_out_data, x_r_conv_out_data);
+
     _relu(x_conv_out_tensor, x_r_conv_out_data, x_l_conv_out_data);
 
     // output = F.relu(self.output_conv(x_r))

@@ -6,6 +6,7 @@
 #include <memory>
 #include "cudnn_context.h"
 #include "fftnet_block.h"
+#include "linear.h"
 
 class FFTNet {
     const cudnn::Context _context;
@@ -22,7 +23,11 @@ class FFTNet {
         const cudnn::Tensor4d &x_tensor, const cudnn::Array4f32 &x_data,
         const cudnn::Tensor4d &h_tensor, const cudnn::Array4f32 &h_data,
         const cudnn::Tensor4d &out_tensor, cudnn::Array4f32 &out_data);
+    cudnn::Tensor4d CreateOutputTensor_Impl(
+        std::vector<std::shared_ptr<FFTNetBlock>>::iterator iter,
+        const cudnn::Tensor4d &input_tensor);
 public:
+    layers::Linear linear;
     std::vector<std::shared_ptr<FFTNetBlock>> layers;
 
 public:

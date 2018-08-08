@@ -1,6 +1,5 @@
-#include <cassert>
-#include <stdexcept>
 #include <utility>
+#include <iostream>
 #include "tensor.h"
 #include "exception.h"
 
