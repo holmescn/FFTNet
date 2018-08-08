@@ -2,7 +2,7 @@ CXX := nvcc
 TARGET := fftnet_cuda
 CUDNN_PATH := /usr/local/cuda
 INCLUDE_DIRS := -I$(CUDNN_PATH)/include -Isrc
-LIBS := -L$(CUDNN_PATH)/lib64 -L/usr/local/lib -lcudnn
+LIBS := -L$(CUDNN_PATH)/lib64 -L/usr/local/lib -lcudnn -lcublas
 CXXFLAGS := -std=c++14 -O2 -ccbin clang-3.9 -lstdc++
 
 all: ${TARGET}
@@ -46,6 +46,10 @@ fftnet_test: build/cudnn_context.o build/tensor.o build/kernel.o build/array4d.o
 	./build/$@
 
 cuda_test: build/catch.o build/cuda_test.o
+	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
+	./build/$@
+
+cublas_test: build/catch.o build/cublas_test.o
 	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@
 
