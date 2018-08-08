@@ -3,6 +3,5 @@
 #include "fftnet.h"
 
 TEST_CASE( "FFTNet block without h forward test.", "[cudnn::Convolution]" ) {
-    cudnn::Context context;
-    FFTNet fftnet(context, 3);
+    FFTNet fftnet(3);
 }

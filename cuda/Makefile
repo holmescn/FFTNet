@@ -37,6 +37,10 @@ conv1d_test: build/cudnn_context.o build/tensor.o build/kernel.o build/array4d.o
 	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@
 
+linear_test: build/cudnn_context.o build/tensor.o build/array4d.o build/data_type.o build/exception.o build/linear.o build/catch.o build/linear_test.o
+	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
+	./build/$@
+
 fftnet_block_test: build/cudnn_context.o build/tensor.o build/kernel.o build/array4d.o build/data_type.o build/exception.o build/conv1d.o build/relu.o build/fftnet_block.o build/catch.o build/fftnet_block_test.o
 	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@

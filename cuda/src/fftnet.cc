@@ -1,11 +1,11 @@
 #include "fftnet.h"
 
-FFTNet::FFTNet(const cudnn::Context &context,
-            int n_stacks,
-            int fft_channels, 
-            int quantization_channels, 
-            int local_condition_channels)
-: _context(context),
+FFTNet::FFTNet(
+    int n_stacks,
+    int fft_channels, 
+    int quantization_channels, 
+    int local_condition_channels)
+: _context(),
   _n_stacks(n_stacks),
   _fft_channels(fft_channels),
   _quantization_channels(quantization_channels),
@@ -24,7 +24,7 @@ FFTNet::FFTNet(const cudnn::Context &context,
     for(auto iter = _window_shifts.rbegin(); iter != _window_shifts.rend(); iter ++) {
         int shift = *iter;
         int in_channels = (shift == last_shift ? 1 : fft_channels);
-        auto fftnet_block = std::make_shared<FFTNetBlock>(context, in_channels, fft_channels, shift, local_condition_channels);
+        auto fftnet_block = std::make_shared<FFTNetBlock>(_context, in_channels, fft_channels, shift, local_condition_channels);
         layers.push_back(fftnet_block);
     }
 

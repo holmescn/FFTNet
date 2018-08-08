@@ -8,7 +8,7 @@
 #include "fftnet_block.h"
 
 class FFTNet {
-    const cudnn::Context &_context;
+    const cudnn::Context _context;
     int _n_stacks;
     int _fft_channels;
     int _quantization_channels;
@@ -26,11 +26,10 @@ public:
     std::vector<std::shared_ptr<FFTNetBlock>> layers;
 
 public:
-    FFTNet(const cudnn::Context &context,
-            int n_stacks=11,
-            int fft_channels=256,
-            int quantization_channels=256,
-            int local_condition_channels=-1);
+    FFTNet(int n_stacks=11,
+           int fft_channels=256,
+           int quantization_channels=256,
+           int local_condition_channels=-1);
     ~FFTNet();
 
     FFTNet(const FFTNet& other) = delete;

@@ -4,6 +4,7 @@
 
 #include <exception>
 #include "cudnn.h"
+#include "cublas_v2.h"
 
 #define assert_cudnn_success(expression)                     \
   {                                                          \
@@ -19,6 +20,14 @@
     if (status != cudaSuccess) {                            \
         throw cuda::Exception(status, __FILE__, __LINE__);  \
     }                                                       \
+  }
+
+#define assert_cublas_success(expression)                     \
+  {                                                           \
+    cublasStatus_t status = (expression);                     \
+    if (status != CUBLAS_STATUS_SUCCESS) {                    \
+        throw cublas::Exception(status, __FILE__, __LINE__);  \
+    }                                                         \
   }
 
 namespace cudnn {
@@ -62,6 +71,36 @@ namespace cuda {
 
     public:
         Exception(cudaError_t status, const char *file, size_t line) noexcept
+        : _status(status), _file(file), _line(line)
+        {}
+        ~Exception() override {}
+
+        Exception(const Exception& other) noexcept // copy constructor
+        : _status(other._status), _file(other._file), _line(other._line)
+        {}
+
+        Exception(Exception&& other) noexcept // move constructor
+        : _status(other._status), _file(other._file), _line(other._line)
+        {}
+
+        Exception& operator=(const Exception& other); // copy assignment
+        Exception& operator=(Exception&& other) noexcept; // move assignment
+
+        const char* what() const noexcept override;
+    };
+}
+
+namespace cublas {
+
+    class Exception : public std::exception {
+        static char _buffer[1024 * 4];
+
+        size_t _line;
+        const char * _file;
+        cublasStatus_t _status;
+
+    public:
+        Exception(cublasStatus_t status, const char *file, size_t line) noexcept
         : _status(status), _file(file), _line(line)
         {}
         ~Exception() override {}
