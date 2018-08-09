@@ -23,6 +23,9 @@ namespace layers {
         void _PrepareWorkspace(const cudnn::Tensor4d &input_tensor,
                                const cudnn::Tensor4d &output_tensor);
     public:
+        size_t in_channels;
+        size_t out_channels;
+        size_t kernel_size;
         cudnn::Array4f32 weight_data;
         cudnn::Array4f32 bias_data;
 

@@ -10,8 +10,8 @@ namespace cudnn {
         Float16 = CUDNN_DATA_HALF,
         Float32 = CUDNN_DATA_FLOAT,
         Float64 = CUDNN_DATA_DOUBLE,
-        Int8 = CUDNN_DATA_INT8,
-        UInt8 = CUDNN_DATA_UINT8,
+        // Int8 = CUDNN_DATA_INT8,
+        // UInt8 = CUDNN_DATA_UINT8,
         Int32 = CUDNN_DATA_INT32,
         Invalid
     };
