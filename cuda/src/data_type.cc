@@ -7,8 +7,8 @@ size_t cudnn::size_of_data_type(cudnn::DataType dataType) {
         case DataType::Float16: return sizeof(float);
         case DataType::Float32: return sizeof(float);
         case DataType::Float64: return sizeof(double);
-        case DataType::Int8: return sizeof(int8_t);
-        case DataType::UInt8: return sizeof(uint8_t);
+        // case DataType::Int8: return sizeof(int8_t);
+        // case DataType::UInt8: return sizeof(uint8_t);
         case DataType::Int32: return sizeof(uint32_t);
         default:
             throw std::invalid_argument("The given DataType is invalid.");

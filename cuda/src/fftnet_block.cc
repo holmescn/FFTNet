@@ -91,8 +91,9 @@ void FFTNetBlock::Forward(
     // h = h[:, :, -x.size(-1):]
     // h_l = h[:, :, :-self.shift]
     // h_r = h[:, :, self.shift:]
-    auto h_l_data = x_shift_tensor.CreateArray4f32();
-    auto h_r_data = x_shift_tensor.CreateArray4f32();
+    cudnn::Tensor4d h_shift_tensor(h_tensor.batch_size, h_tensor.n_channels, 1, x_tensor.width - this->_shift);
+    auto h_l_data = h_shift_tensor.CreateArray4f32();
+    auto h_r_data = h_shift_tensor.CreateArray4f32();
     _SplitHByShift(h_tensor, h_data, x_tensor.width, h_l_data, h_r_data);
 
     // x_l = self.x_l_conv(x_l) 
@@ -112,8 +113,8 @@ void FFTNetBlock::Forward(
     auto h_r_conv_out_data = h_conv_out_tensor.CreateArray4f32();
     h_l_conv_out_data.InitializeWithZeros();
     h_r_conv_out_data.InitializeWithZeros();
-    h_l_conv1d->Forward(x_shift_tensor, h_l_data, h_conv_out_tensor, h_l_conv_out_data);
-    h_r_conv1d->Forward(x_shift_tensor, h_r_data, h_conv_out_tensor, h_r_conv_out_data);
+    h_l_conv1d->Forward(h_shift_tensor, h_l_data, h_conv_out_tensor, h_l_conv_out_data);
+    h_r_conv1d->Forward(h_shift_tensor, h_r_data, h_conv_out_tensor, h_r_conv_out_data);
 
     // z_x = x_l + x_r
     _AddTensor(x_conv_out_tensor, x_l_conv_out_data, x_r_conv_out_data);
@@ -134,17 +135,15 @@ void FFTNetBlock::Forward(
 }
 
 void FFTNetBlock::_SplitXByShift(
-    const cudnn::Tensor4d &tensor, const cudnn::Array4f32 &input_data,
-    cudnn::Array4f32 &out_l_data, cudnn::Array4f32 &out_r_data) const
+    const cudnn::Tensor4d &x_tensor, const cudnn::Array4f32 &x_data,
+    cudnn::Array4f32 &x_l_data, cudnn::Array4f32 &x_r_data) const
 {
-    for(int batch = 0; batch < tensor.batch_size; ++batch) {
-        for (int ch = 0; ch < tensor.n_channels; ++ch) {
-            for (int row = 0; row < tensor.height; ++row) {
-                for (int col = 0; col < tensor.width - this->_shift; ++col) {
-                    out_l_data(batch, ch, row, col) = input_data(batch, ch, row, col);
-                }
-                for (int col = this->_shift; col < tensor.width; ++col) {
-                    out_r_data(batch, ch, row, col - this->_shift) = input_data(batch, ch, row, col);                    
+    for(int batch = 0; batch < x_tensor.batch_size; ++batch) {
+        for (int ch = 0; ch < x_tensor.n_channels; ++ch) {
+            for (int row = 0; row < x_tensor.height; ++row) {
+                for (int col = 0; col < x_tensor.width - this->_shift; ++col) {
+                    x_l_data(batch, ch, row, col) = x_data(batch, ch, row, col);
+                    x_r_data(batch, ch, row, col) = x_data(batch, ch, row, col + this->_shift);                    
                 }
             }
         }
@@ -152,20 +151,18 @@ void FFTNetBlock::_SplitXByShift(
 }
 
 void FFTNetBlock::_SplitHByShift(
-    const cudnn::Tensor4d &tensor, const cudnn::Array4f32 &input_data,
-    int width,
-    cudnn::Array4f32 &out_l_data,
-    cudnn::Array4f32 &out_r_data)
+    const cudnn::Tensor4d &h_tensor, const cudnn::Array4f32 &h_data,
+    int x_width,
+    cudnn::Array4f32 &h_l_data,
+    cudnn::Array4f32 &h_r_data)
 {
-    for(int batch = 0; batch < tensor.batch_size; ++batch) {
-        for (int ch = 0; ch < tensor.n_channels; ++ch) {
-            for (int row = 0; row < tensor.height; ++row) {
-                int col_start = tensor.width - width;
-                for (int col = 0; col < tensor.width - width - this->_shift; ++col) {
-                    out_l_data(batch, ch, row, col) = input_data(batch, ch, row, col + col_start);
-                }
-                for (int col = this->_shift; col < tensor.width - width; ++col) {
-                    out_r_data(batch, ch, row, col - this->_shift) = input_data(batch, ch, row, col + col_start);                    
+    for(int batch = 0; batch < h_tensor.batch_size; ++batch) {
+        for (int ch = 0; ch < h_tensor.n_channels; ++ch) {
+            for (int row = 0; row < h_tensor.height; ++row) {
+                int col_start = h_tensor.width - x_width;
+                for (int col = 0; col < x_width - this->_shift; ++col) {
+                    h_l_data(batch, ch, row, col) = h_data(batch, ch, row, col + col_start);
+                    h_r_data(batch, ch, row, col) = h_data(batch, ch, row, col + col_start + this->_shift);                    
                 }
             }
         }

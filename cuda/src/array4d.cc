@@ -26,10 +26,10 @@ cudnn::Array4f32::~Array4f32()
 
 float& cudnn::Array4f32::operator()(size_t idx1, size_t idx2, size_t idx3, size_t idx4) noexcept
 {
-    assert(0 <= idx1 && idx1 <= _dims[0]);
-    assert(0 <= idx2 && idx2 <= _dims[1]);
-    assert(0 <= idx3 && idx3 <= _dims[2]);
-    assert(0 <= idx4 && idx4 <= _dims[3]);
+    assert(idx1 <= _dims[0]);
+    assert(idx2 <= _dims[1]);
+    assert(idx3 <= _dims[2]);
+    assert(idx4 <= _dims[3]);
 
     size_t index = this->_index(idx1, idx2, idx3, idx4);
     return _data[index];

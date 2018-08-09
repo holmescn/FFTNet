@@ -76,3 +76,8 @@ void layers::Linear::Forward(
             output_data.data()) );
     }
 }
+
+void layers::Linear::weight(float *data)
+{
+    memcpy(_weight_data, data, this->size());
+}

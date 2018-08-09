@@ -1,3 +1,5 @@
+#include <cassert>
+#include <cstring>
 #include <iostream>
 #include "fftnet.h"
 
@@ -92,4 +94,83 @@ FFTNet::CreateOutputTensor_Impl(
     } else {
         return linear.CreateOutputTensor(input_tensor);
     }
+}
+
+void FFTNet::InitializeWithHDF5(const char *full_path)
+{
+    H5::H5File hdf_file( full_path, H5F_ACC_RDONLY );
+
+    int layer_index = 0;
+    for(auto iter = layers.begin(); iter != layers.end(); iter++, layer_index++) {
+        auto p_layer = *iter;
+        _InitializeConv1DLayer(hdf_file, layer_index, p_layer->x_l_conv1d, "x_l_conv");
+        _InitializeConv1DLayer(hdf_file, layer_index, p_layer->x_r_conv1d, "x_r_conv");
+        if (p_layer->h_l_conv1d != nullptr) {
+            _InitializeConv1DLayer(hdf_file, layer_index, *(p_layer->h_l_conv1d), "h_l_conv");
+            _InitializeConv1DLayer(hdf_file, layer_index, *(p_layer->h_r_conv1d), "h_r_conv");
+        }
+        _InitializeConv1DLayer(hdf_file, layer_index, p_layer->out_conv1d, "output_conv");
+    }
+
+    _InitializeLinearLayer(hdf_file);
+}
+
+void FFTNet::_InitializeConv1DLayer(
+    const H5::H5File &hdf_file,
+    int layer_index,
+    const layers::Conv1D &layer,
+    const char *layer_name)
+{
+    char str_buf[1024] = { 0 };
+
+    snprintf(str_buf, 1024, "layers/%d/%s/weight", layer_index, layer_name);
+    H5std_string ds_weight_name = str_buf;
+
+    snprintf(str_buf, 1024, "layers/%d/%s/bias", layer_index, layer_name);
+    H5std_string ds_bias_name = str_buf;
+
+    H5::DataSet ds_weight = hdf_file.openDataSet( ds_weight_name );
+    H5::DataSet ds_bias = hdf_file.openDataSet( ds_bias_name );
+
+    H5::DataSpace dataspace_weight = ds_weight.getSpace();
+    hsize_t weight_dims[4];
+    int ndims_weight = dataspace_weight.getSimpleExtentDims( weight_dims, NULL);
+    assert(weight_dims[0] == layer.out_channels);
+    assert(weight_dims[1] == layer.in_channels);
+    assert(weight_dims[2] == layer.kernel_size);
+
+    H5::DataSpace dataspace_bias = ds_bias.getSpace();
+    hsize_t bias_dims[1];
+    int ndims_bias = dataspace_bias.getSimpleExtentDims( bias_dims, NULL);
+    assert(bias_dims[0] == layer.out_channels);
+
+    ds_weight.read(layer.weight_data.data(), H5::PredType::NATIVE_FLOAT);
+    ds_bias.read(layer.bias_data.data(), H5::PredType::NATIVE_FLOAT);
+}
+
+void FFTNet::_InitializeLinearLayer(const H5::H5File &hdf_file)
+{
+    H5std_string ds_weight_name = "linear/weight";
+    H5std_string ds_bias_name = "linear/bias";
+
+    H5::DataSet ds_weight = hdf_file.openDataSet( ds_weight_name );
+    H5::DataSet ds_bias = hdf_file.openDataSet( ds_bias_name );
+
+    H5::DataSpace dataspace_weight = ds_weight.getSpace();
+    hsize_t weight_dims[2];
+    int ndims_weight = dataspace_weight.getSimpleExtentDims( weight_dims, NULL);
+    assert(weight_dims[0] == linear.out_features);
+    assert(weight_dims[1] == linear.in_features);
+
+    H5::DataSpace dataspace_bias = ds_bias.getSpace();
+    hsize_t bias_dims[1];
+    int ndims_bias = dataspace_bias.getSimpleExtentDims( bias_dims, NULL);
+    assert(bias_dims[0] == linear.out_features);
+
+    float *weight_data = new float[linear.size()];
+    ds_weight.read(weight_data, H5::PredType::NATIVE_FLOAT);
+    ds_bias.read(linear.bias_data.data(), H5::PredType::NATIVE_FLOAT);
+
+    linear.weight(weight_data);
+    delete[] weight_data;
 }

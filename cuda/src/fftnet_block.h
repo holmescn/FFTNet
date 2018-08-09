@@ -13,12 +13,13 @@ class FFTNetBlock {
     int _local_condition_channels;
     int _shift;
 
-    void _SplitXByShift(const cudnn::Tensor4d &tensor, const cudnn::Array4f32 &input_data,
-                        cudnn::Array4f32 &out_l_data, cudnn::Array4f32 &out_r_data) const;
-    void _SplitHByShift(const cudnn::Tensor4d &tensor, const cudnn::Array4f32 &input_data,
-                        int width,
-                        cudnn::Array4f32 &out_l_data,
-                        cudnn::Array4f32 &out_r_data);
+    void _SplitXByShift(const cudnn::Tensor4d &x_tensor, const cudnn::Array4f32 &x_data,
+                        cudnn::Array4f32 &x_l_data, cudnn::Array4f32 &x_r_data) const;
+    void _SplitHByShift(const cudnn::Tensor4d &h_tensor,
+                        const cudnn::Array4f32 &x_data,
+                        int x_width,
+                        cudnn::Array4f32 &h_l_data,
+                        cudnn::Array4f32 &h_r_data);
 
     void _AddTensor(const cudnn::Tensor4d &tensor,
                     const cudnn::Array4f32 &data,

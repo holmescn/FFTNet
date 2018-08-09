@@ -36,8 +36,10 @@ namespace layers {
                      const cudnn::Tensor4d &output_tensor,
                      cudnn::Array4f32 &output_data);
 
+        inline size_t size() const noexcept { return n_rows * n_cols * sizeof(float); }
         inline float weight(size_t row, size_t col) const { return _weight_data[col + row * out_features]; }
         inline float& weight(size_t row, size_t col) { return _weight_data[col + row * out_features]; }
+        void weight(float *data);
 
         cudnn::Tensor4d CreateOutputTensor(const cudnn::Tensor4d &input_tensor);
     };

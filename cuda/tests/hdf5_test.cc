@@ -31,15 +31,12 @@ TEST_CASE("Load Linear layer and forward.", "[layers::Linear][hdf5]") {
     cudnn::Context context;
     layers::Linear linear(context, 256, 256);
 
-    float weight[256][256] = { 0 };
-    ds_weight.read(&weight[0][0], PredType::NATIVE_FLOAT);
+    float *weight_data = new float[linear.size()];
+    ds_weight.read(weight_data, PredType::NATIVE_FLOAT);
     ds_bias.read(linear.bias_data.data(), PredType::NATIVE_FLOAT);
 
-    for(int r = 0; r < linear.n_rows; r ++) {
-        for(int c = 0; c < linear.n_cols; c ++) {
-            linear.weight(r, c) = weight[r][c];
-        }
-    }
+    linear.weight(weight_data);
+    delete[] weight_data;
 
     cudnn::Tensor4d input_tensor(1, 256, 1, 3);
     auto input_data = input_tensor.CreateArray4f32();

@@ -3,7 +3,7 @@
 
 #include "fftnet.h"
 
-TEST_CASE( "FFTNet test.", "[cudnn::Convolution]" ) {
+TEST_CASE( "FFTNet test.", "[cudnn::FFTNet]" ) {
     FFTNet fftnet(11);
 
     INFO("Intialize weights and biases");
@@ -56,4 +56,30 @@ TEST_CASE( "FFTNet test.", "[cudnn::Convolution]" ) {
             }
         }
     }
+}
+
+TEST_CASE("FFTNet initialize with HDF5 file.", "[cudnn:FFTNet]") {
+    FFTNet fftnet(11, 256, 256, 80);
+    fftnet.InitializeWithHDF5("/tmp/model_ckpt.h5");
+
+    cudnn::Tensor4d x_tensor(1, 1, 1, 2500);
+    auto x_data = x_tensor.CreateArray4f32();
+    x_data = 1.0;
+
+    cudnn::Tensor4d h_tensor(1, 80, 1, 3000);
+    auto h_data = h_tensor.CreateArray4f32();
+    h_data.InitializeWithZeros();
+
+    auto out_tensor = fftnet.CreateOutputTensor(x_tensor);
+    auto out_data = out_tensor.CreateArray4f32();
+    out_data.InitializeWithZeros();
+    REQUIRE( out_tensor.n_channels == 256 );
+    REQUIRE( out_tensor.width == 453 );
+
+    fftnet.Forward(x_tensor, x_data, h_tensor, h_data, out_tensor, out_data);
+    cudaDeviceSynchronize();
+
+    CHECK(out_data(0, 0, 0, 0) == Approx(-102.0696));
+    CHECK(out_data(0, 0, 0, 1) == Approx(-102.0696));
+    CHECK(out_data(0, 1, 0, 1) == Approx(-101.2076));
 }

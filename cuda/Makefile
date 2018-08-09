@@ -7,7 +7,7 @@ CXXFLAGS := -std=c++14 -O2 -ccbin clang-3.9 -lstdc++
 
 all: ${TARGET}
 
-test: cudnn_context_test exception_test tensor_test array4d_test
+test: cudnn_context_test exception_test tensor_test array4d_test conv1d_test linear_test fftnet_block_test fftnet_test
 
 fftnet_cuda: build/fftnet_main.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) $(LIBS) -o build/${TARGET} $^
