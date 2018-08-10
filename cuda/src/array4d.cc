@@ -15,6 +15,7 @@ cudnn::Array4f32::Array4f32(Array4f32&& other)
 : _dims{ other._dims[0], other._dims[1], other._dims[2], other._dims[3] },
   _data{std::exchange(other._data, nullptr)}
 {
+
 }
 
 cudnn::Array4f32::~Array4f32()

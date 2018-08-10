@@ -17,7 +17,6 @@ class FFTNet {
     int _local_condition_channels;
 
     std::vector<int> _window_shifts;
-    int _receptive_field;
 
     void Forward_Impl(
         std::vector<std::shared_ptr<FFTNetBlock>>::iterator iter,
@@ -36,6 +35,7 @@ class FFTNet {
 public:
     layers::Linear linear;
     std::vector<std::shared_ptr<FFTNetBlock>> layers;
+    int receptive_field;
 
 public:
     FFTNet(int n_stacks=11,

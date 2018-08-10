@@ -44,7 +44,6 @@ TEST_CASE( "FFTNet test.", "[cudnn::FFTNet]" ) {
 
     INFO("Forward");
     fftnet.Forward(x_tensor, x_data, h_tensor, h_data, output_tensor, output_data);
-    cudaDeviceSynchronize();
 
     INFO("Verify");
     for(int b = 0; b < output_tensor.batch_size; b++) {
@@ -77,7 +76,6 @@ TEST_CASE("FFTNet initialize with HDF5 file.", "[cudnn:FFTNet]") {
     REQUIRE( out_tensor.width == 453 );
 
     fftnet.Forward(x_tensor, x_data, h_tensor, h_data, out_tensor, out_data);
-    cudaDeviceSynchronize();
 
     CHECK(out_data(0, 0, 0, 0) == Approx(-102.0696));
     CHECK(out_data(0, 0, 0, 1) == Approx(-102.0696));

@@ -97,6 +97,7 @@ void layers::Conv1D::_PrepareWorkspace(
             CUDNN_CONVOLUTION_FWD_PREFER_FASTEST,
             /*memoryLimitInBytes=*/0,
             &_convolution_fwd_algo));
+
     }
 
     size_t workspace_size = 0;
@@ -109,10 +110,12 @@ void layers::Conv1D::_PrepareWorkspace(
         _convolution_fwd_algo,
         &workspace_size));
 
-    if (workspace_size != _workspace_size && _workspace != nullptr) {
-        assert_cuda_success( cudaFree(_workspace) );
-    }
+    if (workspace_size != _workspace_size) {
+        if (_workspace != nullptr) {
+            assert_cuda_success( cudaFree(_workspace) );
+        }
 
-    _workspace_size = workspace_size;
-    assert_cuda_success( cudaMalloc(&_workspace, _workspace_size) );
+        _workspace_size = workspace_size;
+        assert_cuda_success( cudaMalloc(&_workspace, _workspace_size) );
+    }
 }

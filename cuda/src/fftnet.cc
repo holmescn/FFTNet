@@ -17,11 +17,11 @@ FFTNet::FFTNet(
 {
     // self.window_shifts = [2 ** i for i in range(self.n_stacks)]
     // self.receptive_field = sum(self.window_shifts) + 1
-    _receptive_field = 1;
+    receptive_field = 1;
     for(int i = 0; i < n_stacks; i++) {
         int shift = 1 << i;
         _window_shifts.push_back(shift);
-        _receptive_field += shift;
+        receptive_field += shift;
     }
 
     auto last_shift = _window_shifts.back();
@@ -47,6 +47,7 @@ void FFTNet::Forward(
 {
     // Suppose the input is channels_first.
     Forward_Impl(layers.begin(), x_tensor, x_data, h_tensor, h_data, out_tensor, out_data);
+    cudaDeviceSynchronize();
 }
 
 void FFTNet::Forward_Impl(
