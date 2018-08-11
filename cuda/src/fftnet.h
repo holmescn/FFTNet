@@ -55,6 +55,10 @@ public:
     void Forward(const cudnn::Tensor4d &x_tensor, const cudnn::Array4f32 &x_data,
                  const cudnn::Tensor4d &h_tensor, const cudnn::Array4f32 &h_data,
                  const cudnn::Tensor4d &out_tensor, cudnn::Array4f32 &out_data);
+
+    void Softmax(const cudnn::Tensor4d &x_tensor,
+                 const cudnn::Array4f32 &x_data,
+                 cudnn::Array4f32 &y_data);
 };
 
 #endif // __FFTNET_H__

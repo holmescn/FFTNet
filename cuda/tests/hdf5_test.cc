@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <vector>
 #include "catch.hpp"
 #include "linear.h"
 #include "conv1d.h"
@@ -106,3 +107,27 @@ TEST_CASE("Load Conv1D layer and forward.", "[layers::Conv1D][hdf5]") {
     CHECK( output_data(0, 2, 0, 0) == Approx(-1.2339).epsilon(0.001) );
 }
 
+TEST_CASE("Write to file test.", "[hdf5]") {
+    std::vector<float> samples(200, 1.0);
+
+    H5File ofile( "/tmp/samples.h5", H5F_ACC_TRUNC );
+
+    float fillvalue = 0; // Fill value for the dataset
+    DSetCreatPropList plist;
+    plist.setFillValue(PredType::NATIVE_FLOAT, &fillvalue);
+
+    hsize_t fdim[1] = { 0 };
+    fdim[0] = samples.size();
+    DataSpace fspace( 1, fdim );
+    fspace.selectAll();
+
+    auto dataset = ofile.createDataSet("samples", PredType::NATIVE_FLOAT, fspace, plist);
+
+    hsize_t mdim[1] = { 0 };
+    mdim[0] = samples.size();
+    DataSpace mspace( 1, mdim );
+
+    dataset.write(samples.data(), PredType::NATIVE_FLOAT, mspace, fspace);
+    dataset.close();
+    ofile.close();
+}

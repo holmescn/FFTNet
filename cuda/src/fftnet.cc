@@ -2,6 +2,7 @@
 #include <cstring>
 #include <iostream>
 #include "fftnet.h"
+#include "exception.h"
 
 FFTNet::FFTNet(
     int n_stacks,
@@ -114,6 +115,8 @@ void FFTNet::InitializeWithHDF5(const char *full_path)
     }
 
     _InitializeLinearLayer(hdf_file);
+
+    hdf_file.close();
 }
 
 void FFTNet::_InitializeConv1DLayer(
@@ -147,6 +150,9 @@ void FFTNet::_InitializeConv1DLayer(
 
     ds_weight.read(layer.weight_data.data(), H5::PredType::NATIVE_FLOAT);
     ds_bias.read(layer.bias_data.data(), H5::PredType::NATIVE_FLOAT);
+
+    ds_weight.close();
+    ds_bias.close();
 }
 
 void FFTNet::_InitializeLinearLayer(const H5::H5File &hdf_file)
@@ -174,4 +180,26 @@ void FFTNet::_InitializeLinearLayer(const H5::H5File &hdf_file)
 
     linear.weight(weight_data);
     delete[] weight_data;
+
+    ds_weight.close();
+    ds_bias.close();
+}
+
+void FFTNet::Softmax(
+    const cudnn::Tensor4d &x_tensor,
+    const cudnn::Array4f32 &x_data,
+    cudnn::Array4f32 &y_data)
+{
+    const float alpha = 1.0, beta = 0.0;
+    assert_cudnn_success( cudnnSoftmaxForward(
+        static_cast<cudnnHandle_t>(_context),
+        CUDNN_SOFTMAX_FAST,
+        CUDNN_SOFTMAX_MODE_INSTANCE,
+        &alpha,
+        static_cast<cudnnTensorDescriptor_t>(x_tensor),
+        x_data.data(),
+        &beta,
+        static_cast<cudnnTensorDescriptor_t>(x_tensor),
+        y_data.data()) );
+    cudaDeviceSynchronize();
 }

@@ -62,7 +62,7 @@ def generate_fn(args):
 
     model.to(device)
     model.eval()
-    
+
     if hparams.feature_type == "mcc":
         scaler = StandardScaler()
         scaler.mean_ = np.load(os.path.join(args.data_dir, 'mean.npy'))
@@ -72,7 +72,7 @@ def generate_fn(args):
         feat_transform = None
 
     with torch.no_grad():
-        samples, local_condition, uv = prepare_data(args.lc_file, upsample_factor, 
+        samples, local_condition, uv = prepare_data(args.lc_file, upsample_factor,
                                                 model.receptive_field, read_fn=lambda x: np.load(x), feat_transform=feat_transform)
 
         start = time.time()
@@ -81,7 +81,7 @@ def generate_fn(args):
             h = local_condition[:, :, i+1 : i+1 + model.receptive_field]
             sample, h = sample.to(device), h.to(device)
             output = model(sample, h)
-           
+
             if hparams.feature_type == "mcc":
                 if uv[i+model.receptive_field] == 0:
                     output = output[0, :, -1]
@@ -104,7 +104,7 @@ def generate_fn(args):
             samples.append(sample)
 
 
-        write_wav(np.asarray(samples), hparams.sample_rate, 
+        write_wav(np.asarray(samples), hparams.sample_rate,
                   os.path.join(os.path.dirname(args.checkpoint), "generated-{}.wav".format(os.path.basename(args.checkpoint))))
 
 
@@ -115,7 +115,7 @@ if __name__ == '__main__':
         help='Checkpoint path to restore model')
     parser.add_argument('--lc_file', type=str, required=True,
         help='Local condition file path.')
-    parser.add_argument('--data_dir', type=str, default='training_data', 
+    parser.add_argument('--data_dir', type=str, default='training_data',
         help='data dir')
     parser.add_argument('--hparams', default='',
         help='Hyperparameter overrides as a comma-separated list of name=value pairs')

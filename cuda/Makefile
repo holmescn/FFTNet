@@ -11,7 +11,7 @@ test: cudnn_context_test exception_test tensor_test array4d_test conv1d_test lin
 
 fftnet_cuda: build/cudnn_context.o build/tensor.o build/kernel.o build/array4d.o build/exception.o build/conv1d.o build/linear.o build/relu.o build/fftnet_block.o build/fftnet.o build/fftnet_main.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) $(LIBS) -o build/${TARGET} $^
-	./build/$@ /tmp/model_ckpt.h5 /tmp/lc_file.h5 /tmp/output.h5
+	# ./build/$@ /tmp/model_ckpt.h5 /tmp/lc_file.h5 /tmp/output.h5
 
 
 cudnn_context_test: build/cudnn_context.o build/exception.o build/data_type.o build/catch.o build/cudnn_context_test.o
@@ -62,7 +62,7 @@ hdf5_test: build/cudnn_context.o build/data_type.o build/array4d.o build/excepti
 	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@
 
-hidden_test: build/tensor.o build/exception.o build/array4d.o build/cudnn_context.o build/data_type.o build/array4d.o build/exception.o build/tensor.o build/linear.o build/kernel.o build/conv1d.o build/catch.o build/hidden_test.o
+load_local_condition_test: build/tensor.o build/exception.o build/array4d.o build/cudnn_context.o build/data_type.o build/array4d.o build/exception.o build/tensor.o build/linear.o build/kernel.o build/conv1d.o build/catch.o build/load_local_condition_test.o
 	$(CXX) $(CXXFLAGS) $(LIBS) -o build/$@ $^
 	./build/$@
 
